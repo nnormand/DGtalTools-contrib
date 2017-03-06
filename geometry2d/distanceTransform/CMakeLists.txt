@@ -4,7 +4,7 @@ add_executable(CumulativeSequenceTest CumulativeSequence.cpp CumulativeSequenceT
 #target_link_libraries(CumulativeSequenceTest sequence)
 
 set(LUTBasedNSDistanceTransform_LIBRARIES)
-set(LUTBasedNSDistanceTransform_SOURCES LUTBasedNSDistanceTransform.cpp ImageFilter.cpp ImageWriter.cpp ImageReader.cpp NeighborhoodSequenceDistance.cpp D4DistanceDT.cpp D8DistanceDT.cpp RatioNSDistanceDT.cpp PeriodicNSDistanceDT.cpp CumulativeSequence.cpp PBMImageReader.cpp PGMImageWriter.cpp)
+set(LUTBasedNSDistanceTransform_SOURCES LUTBasedNSDistanceTransform.cpp Granulometry.cpp ImageFilter.cpp ImageWriter.cpp ImageReader.cpp NeighborhoodSequenceDistance.cpp D4DistanceDT.cpp D8DistanceDT.cpp RatioNSDistanceDT.cpp PeriodicNSDistanceDT.cpp CumulativeSequence.cpp PBMImageReader.cpp PGMImageWriter.cpp)
 
 if (WITH_PNG)
     find_package(PNG REQUIRED)

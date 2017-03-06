@@ -45,6 +45,7 @@
 // Path-based distances
 #include "ImageReader.h"
 #include "ImageWriter.h"
+#include "Granulometry.h"
 #include "NeighborhoodSequenceDistance.h"
 
 #include "DGtal/base/Common.h"
@@ -89,6 +90,7 @@ int main(int argc, char **argv)
         ("outputFormat,t", po::value<std::string>(), "Output file format")
         ("inputFormat,f", po::value<std::string>(), "Input file format")
         ("lineBuffered,l", "Flush output after each produced row.")
+        ("granulometry,g", "Compute an estimate of the granulometry.")
         ("input,i", po::value<std::string>(), "Read from file \"arg\" instead "
          "of stdin.");
     //------------------------------------------------------------------------//
@@ -166,6 +168,13 @@ int main(int argc, char **argv)
 
     // Output ----------------------------------------------------------------//
     ImageConsumer<GrayscalePixelType> *output;
+    //------------------------------------------------------------------------//
+
+    // Granulometry ----------------------------------------------------------//
+    if (vm.count("granulometry")) {
+        output = new Granulometry();
+    }
+    else
     {
         std::string outputFile("-");
         std::string outputFormat("");
@@ -192,12 +201,15 @@ int main(int argc, char **argv)
                 << "Unable to create image output stream (unrecognized format?)"
                 << std::endl;
         }
-
-        if (vm.count("center"))
-        {
-            output = dist->newDistanceTransformUntranslator(output);
-        }
     }
+    //------------------------------------------------------------------------//
+
+    // Distance transform ----------------------------------------------------//
+    if (vm.count("center"))
+    {
+        output = dist->newDistanceTransformUntranslator(output);
+    }
+
     NeighborhoodSequenceDistanceTransform *dt =
         dist->newTranslatedDistanceTransform(output);
     //------------------------------------------------------------------------//
