@@ -44,6 +44,7 @@ class D4Distance : public NeighborhoodSequenceDistance
     DistanceTransformUntranslator<GrayscalePixelType, GrayscalePixelType> *
     newDistanceTransformUntranslator(
         ImageConsumer<GrayscalePixelType> *consumer) const;
+    unsigned int B(int r) const;
 };
 
 /**

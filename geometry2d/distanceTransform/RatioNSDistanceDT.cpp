@@ -69,6 +69,12 @@ RatioNSDistance::RatioNSDistance(boost::rational<int> ratio)
 #endif
 }
 
+unsigned int
+RatioNSDistance::B( int r ) const
+{
+    return 1 + mbf2( r ) - mbf2( r - 1 );
+}
+
 NeighborhoodSequenceDistanceTransform *
 RatioNSDistance::newTranslatedDistanceTransform(
     ImageConsumer<GrayscalePixelType> *consumer) const

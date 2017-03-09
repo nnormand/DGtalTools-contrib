@@ -64,6 +64,8 @@ class RatioNSDistance : public NeighborhoodSequenceDistance
     newDistanceTransformUntranslator(
         ImageConsumer<GrayscalePixelType> *consumer) const;
 
+    unsigned int B( int r ) const;
+
     friend class RatioNSDistanceTransform;
     friend class RatioNSDistanceTransformUntranslator;
 

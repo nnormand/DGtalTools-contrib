@@ -198,6 +198,7 @@ class NeighborhoodSequenceDistance
         GrayscalePixelType> *
     newDistanceTransformUntranslator(
         ImageConsumer<GrayscalePixelType> *consumer) const = 0;
+    virtual unsigned int B(int r) const = 0;
 
     static NeighborhoodSequenceDistance *newD4Instance();
     static NeighborhoodSequenceDistance *newD8Instance();

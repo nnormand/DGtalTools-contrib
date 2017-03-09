@@ -61,6 +61,8 @@ class PeriodicNSDistance : public NeighborhoodSequenceDistance
     newDistanceTransformUntranslator(
         ImageConsumer<GrayscalePixelType> *consumer) const;
 
+    unsigned int B( int r ) const;
+
     friend class PeriodicNSDistanceTransform;
     friend class PeriodicNSDistanceTransformUntranslator;
 

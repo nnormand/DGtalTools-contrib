@@ -172,7 +172,7 @@ int main(int argc, char **argv)
 
     // Granulometry ----------------------------------------------------------//
     if (vm.count("granulometry")) {
-        output = new Granulometry();
+        output = new Granulometry(dist);
     }
     else
     {

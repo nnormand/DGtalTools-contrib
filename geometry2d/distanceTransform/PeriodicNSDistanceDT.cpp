@@ -37,6 +37,12 @@
 #include "CumulativeSequence.h"
 #include "PeriodicNSDistanceDT.h"
 
+unsigned int
+PeriodicNSDistance::B(int r) const
+{
+    return 1 + mathbf2( r ) - mathbf2( r - 1 );
+}
+
 int PeriodicNSDistance::mathbf2(int r) const
 {
     return mathbf2d[r % period] +

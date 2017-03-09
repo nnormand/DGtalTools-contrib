@@ -29,6 +29,8 @@
  * This file is part of the DGtal library.
  */
 
+#include "DGtal/math/linalg/SimpleMatrix.h"
+
 #include <assert.h>
 #include <iostream>
 #include "Granulometry.h"
@@ -36,7 +38,7 @@
 /**
  *
  */
-Granulometry::Granulometry() : _cols( 0 )
+Granulometry::Granulometry( NeighborhoodSequenceDistance * dist ) : _dist( dist ), _cols( 0 )
 {
 }
 
@@ -110,69 +112,96 @@ Granulometry::processRow( const GrayscalePixelType * inputRow )
     bzero( _prevRow, _cols * sizeof( GrayscalePixelType ) );
 }
 
+template<typename T, DGtal::Dimension TM, DGtal::Dimension TN> class A {
+  public:
+    // Constructor
+    constexpr A(std::array<T, TM*TN> &array)
+    {
+    }
+};
+
 void
 Granulometry::endOfImage()
 {
+  typedef DGtal::SimpleMatrix<int, 4, 4> M44;
+
+  // Extrapolation matrix for the 4-neighborhood (dilation by a 3×3 diamond)
+  M44 a4{1, 1, 1, 4, 0 ,1 ,0 ,0, 0, 0, 1, 4, 0, 0, 0, 1};
+  // Extrapolation matrix for the 8-neighborhood (dilation by a 3×3 diamond)
+  M44 a8{1, 1, 2, 8, 0, 1, 0, 8, 0, 0, 1, 0, 0, 0, 0, 1};
+  // Extrapolation matrix for the sequence of disks
+  M44 a{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+
+  // Process the last image line as the upper row for the 2×2 blocks
   processRow( NULL );
+  free( _prevRow );
+
   for ( int i = 0; i <= _maxVal + 1; i++ )
   {
     _stats[ 3 ][ i ] /= 4;
   }
-  /*
-  for (int i = 0; i <= _maxVal+1; i++) {
-      for (int j = 0; j < 4; j++) {
-      printf("%5d\t", _stats[j][i]);
-      }
-      printf("\n");
-  }*/
+
+  // Transform stats from first difference sequence to cumulative one
   for ( int i = 0; i <= _maxVal + 1; i++ )
   {
     for ( int j = 0; j < 4; j++ )
     {
-      printf( "%5d\t", _stats[ j ][ i ] );
       _stats[ j ][ i + 1 ] += _stats[ j ][ i ];
     }
-    printf( "\n" );
   }
-  free( _prevRow );
+
+  // Granulometry extrapolation
+  std::cout << "radius, erosion_count, opening_count"  << std::endl;
+  for ( int i = 1; i <= _maxVal + 1; i++ )
+  {
+    // Raw stats from distance transform at level `i`, _i.e._ stats of eroded
+    // image with disk of radius `i`
+    M44::RowVector counts( _stats[ 0 ][ i ], _stats[ 1 ][ i ], _stats[ 2 ][ i ], _stats[ 3 ][ i ]);
+
+    std::cout << i << ", " << counts[ 0 ] << ", " << (a * counts)[ 0 ] << std::endl;
+
+    // Augment radius: dilate previous disk
+    if (_dist->B(i) == 1)
+    {
+      a = a * a4;
+    }
+    else
+    {
+      a = a * a8;
+    }
+  }
 }
 
+/**
+ * For each of the 16 configurations of 2×2 pixels, this array gives a vector
+ * of measures:
+ * - the number of pixels (counts the top left one only),
+ * - the number of straight (horizontal of vertical) contour lines,
+ * - the number of diagonal contour lines,
+ * - 4 × the Euler characteristics.
+ *
+ * For instance, two vertically neighbor pixels will be seen six times with the
+ * configurations: '▗', '▖', '▐', '▌','▝' and '▘' with corresponding measure
+ * vectors {0, 0, 0, 1}, {0, 0, 0, 1}, {0, 1, 0, 0}, {1, 1, 0, 0}, {0, 0, 0, 1}
+ * and {1, 0, 0, 1} whose sum is {2, 2, 0, 4} for two pixels, two vertical
+ * contours segments and one hole-free connected component.
+ *
+ */
 int Granulometry::confStats[ 16 ][ 4 ] = {
-{0, 0, 0, 0},  //
-{1, 0, 0, 1},  // ▘
-{0, 0, 0, 1},  // ▝
-{1, 1, 0, 0},  // ▀
-{0, 0, 0, 1},  // ▖
-{1, 1, 0, 0},  // ▌
-{0, 0, 2, -2}, // ▞
-{1, 0, 1, -1}, // ▛
-{0, 0, 0, 1},  // ▗
-{1, 0, 2, -2}, // ▚
-{0, 1, 0, 0},  // ▐
-{1, 0, 1, -1}, // ▜
-{0, 1, 0, 0},  // ▄
-{1, 0, 1, -1}, // ▙
-{0, 0, 1, -1}, // ▟
-{1, 0, 0, 0},  // █
+  {0, 0, 0, 0},  //
+  {1, 0, 0, 1},  // ▘
+  {0, 0, 0, 1},  // ▝
+  {1, 1, 0, 0},  // ▀
+  {0, 0, 0, 1},  // ▖
+  {1, 1, 0, 0},  // ▌
+  {0, 0, 2, -2}, // ▞
+  {1, 0, 1, -1}, // ▛
+  {0, 0, 0, 1},  // ▗
+  {1, 0, 2, -2}, // ▚
+  {0, 1, 0, 0},  // ▐
+  {1, 0, 1, -1}, // ▜
+  {0, 1, 0, 0},  // ▄
+  {1, 0, 1, -1}, // ▙
+  {0, 0, 1, -1}, // ▟
+  {1, 0, 0, 0},  // █
 };
-/* Old (v1) parameters
-int Granulometry::confStats[16][4] =
-{
-    {0, 0, 0, 0},	//
-    {1, 0, 1, 0},	// ▘
-    {0, 0, 1, 0},	// ▝
-    {1, 1, 0, 0},	// ▀
-    {0, 0, 1, 0},	// ▖
-    {1, 1, 0, 0},	// ▌
-    {0, 0, 0, 2},	// ▞
-    {1, 0, 0, 1},	// ▛
-    {0, 0, 1, 0},	// ▗
-    {1, 0, 0, 2},	// ▚
-    {0, 1, 0, 0},	// ▐
-    {1, 0, 0, 1},	// ▜
-    {0, 1, 0, 0},	// ▄
-    {1, 0, 0, 1},	// ▙
-    {0, 0, 0, 1},	// ▟
-    {1, 0, 0, 0},	// █
-};
-*/

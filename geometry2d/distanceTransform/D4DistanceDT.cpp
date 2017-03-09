@@ -35,6 +35,12 @@
 
 #include "D4DistanceDT.h"
 
+unsigned int
+D4Distance::B(int r) const
+{
+    return 1;
+}
+
 NeighborhoodSequenceDistanceTransform *
 D4Distance::newTranslatedDistanceTransform(
     ImageConsumer<GrayscalePixelType> *consumer) const

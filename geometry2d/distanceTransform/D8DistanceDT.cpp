@@ -36,6 +36,12 @@
 
 #include "D8DistanceDT.h"
 
+unsigned int
+D8Distance::B( int r ) const
+{
+    return 2;
+}
+
 NeighborhoodSequenceDistanceTransform *
 D8Distance::newTranslatedDistanceTransform(
     ImageConsumer<GrayscalePixelType> *consumer) const

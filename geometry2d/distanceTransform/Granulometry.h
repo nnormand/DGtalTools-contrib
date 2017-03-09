@@ -30,6 +30,7 @@
  */
 
 #include "ImageFilter.h"
+#include "NeighborhoodSequenceDistance.h"
 
 /**
  * An ImageConsumer accepts pixels one row at a time in the standard scan order.
@@ -44,7 +45,7 @@
 class Granulometry : public ImageConsumer<GrayscalePixelType>
 {
 public:
-  Granulometry();
+  Granulometry( NeighborhoodSequenceDistance * dist );
   void
   beginOfImage( int cols, int rows );
   void
@@ -55,6 +56,7 @@ public:
 protected:
   int _cols;
   int _maxVal;
+  NeighborhoodSequenceDistance * _dist;
   int _stats[ 4 ][ 256 + 1 ];
   GrayscalePixelType * _prevRow;
   static int confStats[ 16 ][ 4 ];
